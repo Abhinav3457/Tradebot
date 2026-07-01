@@ -23,7 +23,6 @@ from bot.exceptions import (
 )
 from bot.logger import setup_logger
 from bot.orders import OrderService
-import customtkinter as ctk
 
 from bot.validators import (
     validate_order_type,
@@ -101,31 +100,6 @@ class TradingBotApp:
                 ))
         threading.Thread(target=_ping, daemon=True).start()
 
-
-
-    def _show_success_popup(self, message: str) -> None:
-        """Show a success popup dialog."""
-        popup = ctk.CTkToplevel(self._window)
-        popup.title("Success")
-        popup.geometry("320x160")
-        popup.resizable(False, False)
-        popup.transient(self._window)
-        popup.grab_set()
-        ctk.CTkLabel(popup, text="✅", font=("Segoe UI", 40), text_color="#4CAF50").pack(pady=(20, 5))
-        ctk.CTkLabel(popup, text=message, font=("Segoe UI", 14, "bold"), text_color="#FFFFFF", wraplength=280).pack(pady=5)
-        ctk.CTkButton(popup, text="OK", command=popup.destroy, fg_color="#1E88E5", width=80).pack(pady=(10, 0))
-
-    def _show_error_popup(self, message: str) -> None:
-        """Show an error popup dialog."""
-        popup = ctk.CTkToplevel(self._window)
-        popup.title("Error")
-        popup.geometry("320x180")
-        popup.resizable(False, False)
-        popup.transient(self._window)
-        popup.grab_set()
-        ctk.CTkLabel(popup, text="❌", font=("Segoe UI", 40), text_color="#F44336").pack(pady=(20, 5))
-        ctk.CTkLabel(popup, text=message, font=("Segoe UI", 13), text_color="#FFFFFF", wraplength=280).pack(pady=5)
-        ctk.CTkButton(popup, text="OK", command=popup.destroy, fg_color="#F44336", width=80).pack(pady=(10, 0))
     def _handle_ping(self, window: MainWindow) -> None:
         """Handle the Ping button from the GUI."""
         def _do_ping() -> None:
