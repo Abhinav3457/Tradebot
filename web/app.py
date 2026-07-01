@@ -253,9 +253,12 @@ def api_account():
         return jsonify({"success": False, "error": f"Unexpected error: {exc}"}), 500
 
 
+# Initialise backend on import so gunicorn workers have the client available
+err = init_backend()
+if err:
+    logger.error("Web backend init failed: %s", err)
+    print(f"ERROR: {err}")
+    print("The web app will start but the backend is unavailable.")
+
 if __name__ == "__main__":
-    err = init_backend()
-    if err:
-        print(f"ERROR: {err}")
-        print("The web app will start but the backend is unavailable.")
     app.run(host="127.0.0.1", port=5000, debug=True)
