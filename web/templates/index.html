@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binance Futures Trading Bot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>📊</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- ===== TOP NAVIGATION BAR ===== -->
+        <header class="top-nav">
+            <div class="nav-left">
+                <div class="logo">
+                    <span class="logo-icon">⚡</span>
+                    <span class="logo-text">TradeBot</span>
+                    <span class="version-badge">v1.0</span>
+                </div>
+                <span class="testnet-badge">TESTNET</span>
+            </div>
+            <div class="nav-center">
+                <div class="connection-status" id="connectionStatus">
+                    <span class="status-dot connected"></span>
+                    <span class="status-label">Connected</span>
+                </div>
+            </div>
+            <div class="nav-right">
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">🌙</button>
+                <button class="btn btn-ghost btn-sm" onclick="ping()" id="pingBtn">
+                    <span class="btn-icon">🔗</span>
+                    Ping Test
+                </button>
+                <div class="clock" id="clock">--:--:--</div>
+            </div>
+        </header>
+
+        <!-- ===== MAIN GRID ===== -->
+        <div class="dashboard-grid">
+
+            <!-- ===== LEFT COLUMN: TRADING PANEL ===== -->
+            <div class="panel trading-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">Place Order</h2>
+                </div>
+
+                <div class="panel-body">
+                    <!-- Symbol -->
+                    <div class="field-group">
+                        <label class="field-label">Symbol</label>
+                        <div class="symbol-select-wrapper">
+                            <select id="symbol" class="field-select">
+                                <option value="BTCUSDT">BTC / USDT</option>
+                                <option value="ETHUSDT">ETH / USDT</option>
+                                <option value="BNBUSDT">BNB / USDT</option>
+                                <option value="SOLUSDT">SOL / USDT</option>
+                                <option value="XRPUSDT">XRP / USDT</option>
+                                <option value="DOGEUSDT">DOGE / USDT</option>
+                                <option value="ADAUSDT">ADA / USDT</option>
+                                <option value="AVAXUSDT">AVAX / USDT</option>
+                            </select>
+                            <span class="current-price" id="currentPrice">—</span>
+                        </div>
+                    </div>
+
+                    <!-- Side Toggle -->
+                    <div class="field-group">
+                        <label class="field-label">Side</label>
+                        <div class="side-toggle">
+                            <label class="side-option buy">
+                                <input type="radio" name="side" value="BUY" checked>
+                                <span class="side-btn">
+                                    <span class="side-icon">▲</span> BUY
+                                </span>
+                            </label>
+                            <label class="side-option sell">
+                                <input type="radio" name="side" value="SELL">
+                                <span class="side-btn">
+                                    <span class="side-icon">▼</span> SELL
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Order Type -->
+                    <div class="field-group">
+                        <label class="field-label">Order Type</label>
+                        <div class="type-toggle">
+                            <label class="type-option">
+                                <input type="radio" name="type" value="MARKET" checked onchange="togglePriceField()">
+                                <span class="type-btn">MARKET</span>
+                            </label>
+                            <label class="type-option">
+                                <input type="radio" name="type" value="LIMIT" onchange="togglePriceField()">
+                                <span class="type-btn">LIMIT</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="field-group">
+                        <label class="field-label">Quantity</label>
+                        <div class="quantity-presets">
+                            <button class="preset-btn" onclick="setQuantity(25)">25%</button>
+                            <button class="preset-btn" onclick="setQuantity(50)">50%</button>
+                            <button class="preset-btn" onclick="setQuantity(75)">75%</button>
+                            <button class="preset-btn" onclick="setQuantity(100)">100%</button>
+                        </div>
+                        <input type="text" id="quantity" class="field-input" placeholder="0.00" autocomplete="off">
+                    </div>
+
+                    <!-- Price (LIMIT only) -->
+                    <div class="field-group" id="priceGroup" style="display:none;">
+                        <label class="field-label">Price (USDT)</label>
+                        <input type="text" id="price" class="field-input" placeholder="Enter limit price" autocomplete="off" disabled>
+                    </div>
+
+                    <!-- Order Preview -->
+                    <div class="order-preview" id="orderPreview">
+                        <div class="preview-row">
+                            <span>Order Summary</span>
+                            <span id="previewText">—</span>
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <button class="btn btn-submit" id="placeBtn" onclick="placeOrder()">
+                        <span class="btn-submit-text">PLACE ORDER</span>
+                        <span class="btn-submit-loader" id="orderLoader" style="display:none;">
+                            <span class="spinner"></span> Processing...
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ===== RIGHT COLUMN ===== -->
+            <div class="right-column">
+
+                <!-- ===== MARKET DATA ROW ===== -->
+                <div class="panel market-panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Market Data</h2>
+                        <span class="price-updated" id="priceUpdated">—</span>
+                    </div>
+                    <div class="market-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">Mark Price</div>
+                            <div class="metric-value" id="markPrice">—</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">24h Change</div>
+                            <div class="metric-value" id="change24h">—</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">24h High</div>
+                            <div class="metric-value" id="high24h">—</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">24h Low</div>
+                            <div class="metric-value" id="low24h">—</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">24h Volume</div>
+                            <div class="metric-value" id="volume24h">—</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">24h Trades</div>
+                            <div class="metric-value" id="trades24h">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== ACCOUNT OVERVIEW ===== -->
+                <div class="panel account-panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Account Overview</h2>
+                        <button class="btn btn-ghost btn-xs" onclick="refreshAccount()">⟳ Refresh</button>
+                    </div>
+                    <div class="account-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">Balance</div>
+                            <div class="metric-value" id="accountBalance">—</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Available Margin</div>
+                            <div class="metric-value" id="availableBalance">—</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Unrealized PnL</div>
+                            <div class="metric-value" id="unrealizedPnl">—</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Open Positions</div>
+                            <div class="metric-value" id="openPositions">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== ORDER RESPONSE ===== -->
+                <div class="panel response-panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Order Result</h2>
+                    </div>
+                    <div class="response-content" id="responseContent">
+                        <div class="response-empty">
+                            <span class="empty-icon">📋</span>
+                            <span>No orders placed yet. Submit an order to see results here.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== ACTIVITY LOG ===== -->
+                <div class="panel log-panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Activity Log</h2>
+                        <button class="btn btn-ghost btn-xs" onclick="clearLogs()">Clear</button>
+                    </div>
+                    <div class="log-box" id="logsBox">
+                        <div class="log-entry log-info">
+                            <span class="log-time">—</span>
+                            <span class="log-msg">Dashboard ready. Initializing...</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ===== STATUS BAR ===== -->
+        <footer class="status-bar">
+            <div class="status-bar-left">
+                <span class="status-indicator connected" id="statusIndicator"></span>
+                <span id="statusText">Connected to Binance Futures Testnet</span>
+            </div>
+            <div class="status-bar-center">
+                <span>⚡</span>
+                <span id="execTimer">Last order: —</span>
+            </div>
+            <div class="status-bar-right">
+                <span id="serverTime">—</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

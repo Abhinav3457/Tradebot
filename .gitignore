@@ -38,7 +38,7 @@ Thumbs.db
 htmlcov/
 .coverage.*
 *.xml
-*.html
+htmlcov/
 
 # Distribution
 dist/
