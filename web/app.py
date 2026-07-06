@@ -173,8 +173,7 @@ def api_ticker(symbol):
     """Get 24-hour ticker data for a symbol."""
     try:
         client = _require_client()
-        client.test_connection()  # verify connectivity first
-        raw_client = getattr(client, "_client", None)
+        raw_client = client.raw_client
         if raw_client is None:
             return jsonify({"success": False, "error": "Binance client not connected"}), 503
         raw = raw_client.futures_ticker(symbol=symbol.upper())
@@ -211,8 +210,7 @@ def api_account():
     """Get futures account overview."""
     try:
         client = _require_client()
-        client.test_connection()  # verify connectivity first
-        raw_client = getattr(client, "_client", None)
+        raw_client = client.raw_client
         if raw_client is None:
             return jsonify({"success": False, "error": "Binance client not connected"}), 503
         raw = raw_client.futures_account()

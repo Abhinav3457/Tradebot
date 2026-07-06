@@ -188,6 +188,16 @@ class BinanceFuturesClient:
             raise OrderPlacementError(f"Unexpected error: {exc}") from exc
 
     # ------------------------------------------------------------------
+    # Public accessor
+    # ------------------------------------------------------------------
+
+    @property
+    def raw_client(self) -> Client | None:
+        """Return the underlying ``binance.client.Client`` instance, or ``None``
+        if ``connect()`` has not been called yet."""
+        return self._client
+
+    # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
 

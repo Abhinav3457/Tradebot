@@ -44,9 +44,6 @@ class MainWindow(ctk.CTk):
         self.minsize(900, 600)
         self.configure(fg_color=BG_DARK)
 
-        # ---- Menu Bar -----------------------------------------------------
-        self._build_menu()
-
         # ---- Main Layout --------------------------------------------------
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=2)
@@ -118,15 +115,6 @@ class MainWindow(ctk.CTk):
     # ------------------------------------------------------------------
     # Internal
     # ------------------------------------------------------------------
-
-    def _build_menu(self) -> None:
-        """Build the application menu bar."""
-        self.menu_bar = ctk.CTkFrame(self, height=30, fg_color="#1a1a2e", corner_radius=0)
-        self.menu_bar.grid(row=0, column=0, columnspan=2, sticky="ew", padx=0, pady=0)
-        self.menu_bar.grid_forget()  # Hidden initially; CTk doesn't have native menus
-
-        # Using CTk doesn't support native menus easily, so we skip this for now
-        # and use buttons/commands in the UI instead.
 
     def _build_header(self) -> None:
         """Build the top header bar."""
